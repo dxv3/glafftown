@@ -15,7 +15,7 @@ class CloseButton(Button):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user in self.channel.members:
-            transcript_channel_id = 1267786315798417471  # Replace with your desired channel ID
+            transcript_channel_id = 1267786315798417471  # transcript channel ID
             transcript_channel = interaction.guild.get_channel(transcript_channel_id)
             messages = []
             
@@ -26,7 +26,6 @@ class CloseButton(Button):
             for message in messages:
                 transcript += f"{message.author.display_name}: {message.content}\n"
             
-            # Sending the transcript to the designated channel
             await transcript_channel.send(f"Transcript of {self.channel.mention}:\n```{transcript}```")
             
             await self.channel.delete()
@@ -48,24 +47,21 @@ async def on_ready():
     except Exception as e:
         print(e)
 
-    # Set streaming presence
     streaming = discord.Streaming(name="GlaffTown", url="https://www.twitch.tv/kamidrills")
     await bot.change_presence(activity=streaming)
 
-    # Send a message to a specific channel when the bot is up
-    channel_id = 1267194755155099648  # Replace with your desired channel ID
+    channel_id = 1267194755155099648  # bot uptime channel ID
     channel = bot.get_channel(channel_id)
     if channel:
         await channel.send("bot online")
 
-    # Set streaming presence
     streaming = discord.Streaming(name="GlaffTown", url="https://www.twitch.tv/kamidrills")
     await bot.change_presence(activity=streaming)
 
 @bot.event
 async def on_command(ctx):
-    # Log command usage
     print(f"Command {ctx.command} invoked by {ctx.author} in {ctx.guild}/{ctx.channel}")
+
 
 @bot.event
 async def on_message(message):
@@ -77,7 +73,6 @@ async def on_message(message):
 
 @bot.event
 async def on_command_error(ctx, error):
-    # Log command errors and notify the user to DM @dxv3
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send(f"This command is on cooldown. Please try again in {error.retry_after:.2f} seconds.")
     else:
@@ -94,7 +89,7 @@ async def refresh_commands(interaction: discord.Interaction):
 
 @bot.event
 async def on_member_join(member):
-    role_id = 1267649808911437874  # Replace with your role ID
+    role_id = 1267649808911437874  # ROLE ID OF MEMBER
     role = member.guild.get_role(role_id)
     if role:
         await member.add_roles(role)
@@ -201,27 +196,22 @@ async def slash_apply(interaction: discord.Interaction):
     guild = interaction.guild
     user = interaction.user
 
-    # Check if the user already has a ticket open
     if discord.utils.get(guild.channels, name=f"ticket-{user.name}"):
         await interaction.response.send_message("You already have an open ticket.", ephemeral=True)
         return
 
-    # Define the channel permissions
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(read_messages=False),
         user: discord.PermissionOverwrite(read_messages=True)
     }
 
-    # Get the category by ID
     category = discord.utils.get(guild.categories, id=1267645661902409740)
     if not category:
         await interaction.response.send_message("Category not found.", ephemeral=True)
         return
 
-    # Create the channel in the specified category with the user's username and ID
     channel = await guild.create_text_channel(f"ticket-{user.name}", overwrites=overwrites, category=category)
 
-    # Create the embed message and close button
     embed = discord.Embed(title="Application Form", 
                           description="""Please fill out the form below:
 1. What is your IGN?
@@ -237,7 +227,6 @@ async def slash_apply(interaction: discord.Interaction):
     embed.set_footer(text="more to be added soon")
     view = TicketView(channel)
 
-    # Send the embed message and button in the channel
     await channel.send(embed=embed, view=view)
     await interaction.response.send_message(f"Ticket created: {channel.mention}", ephemeral=True)
 
@@ -248,27 +237,22 @@ async def prefix_apply(ctx):
     guild = ctx.guild
     user = ctx.author
 
-    # Check if the user already has a ticket open
     if discord.utils.get(guild.channels, name=f"ticket-{user.name}"):
         await ctx.send("You already have an open ticket.")
         return
 
-    # Define the channel permissions
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(read_messages=False),
         user: discord.PermissionOverwrite(read_messages=True)
     }
 
-    # Get the category by ID
     category = discord.utils.get(guild.categories, id=1267645661902409740)
     if not category:
         await ctx.send("Category not found.")
         return
 
-    # Create the channel in the specified category with the user's username and ID
     channel = await guild.create_text_channel(f"ticket-{user.name}", overwrites=overwrites, category=category)
 
-    # Create the embed message and close button
     embed = discord.Embed(title="Application Form", 
                           description="""Please fill out the form below:
 1. What is your IGN?
@@ -284,7 +268,6 @@ async def prefix_apply(ctx):
     embed.set_footer(text="You will be need to 1v1 someone, if you quickdrop or get 7+ potted, you will be **REJECTED**")
     view = TicketView(channel)
 
-    # Send the embed message and button in the channel
     await channel.send(embed=embed, view=view)
     await ctx.send(f"Ticket created: {channel.mention}")
 
